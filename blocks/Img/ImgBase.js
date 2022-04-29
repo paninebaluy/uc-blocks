@@ -10,7 +10,7 @@ const DEV_MODE =
 
 /**
  * @param {...String} args
- * @returns {any}
+ * @returns {String}
  */
 function join(...args) {
   return args

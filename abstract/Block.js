@@ -1,6 +1,7 @@
 import { BaseComponent, Data, TypedCollection } from '../submodules/symbiote/core/symbiote.js';
 import { l10nProcessor } from './l10nProcessor.js';
 import { uploadEntrySchema } from './uploadEntrySchema.js';
+import { OutputDataMngr } from './OutputDataMngr.js';
 
 const ACTIVE_ATTR = 'active';
 const ACTIVE_PROP = '___ACTIVITY_IS_ACTIVE___';
@@ -142,7 +143,7 @@ export class Block extends BaseComponent {
           '*history': [],
           '*commonProgress': 0,
           '*uploadList': [],
-          '*outputData': null,
+          '*outputData': new OutputDataMngr(this.$['*--cfg-pubkey'], !!this.$['*--create-group']),
           '*focusedEntry': null,
         });
         Block._ctxConnectionsList.push(this.ctxName);
@@ -370,14 +371,16 @@ export class Block extends BaseComponent {
   }
 
   output() {
-    let data = [];
+    /** @type {OutputDataMngr} */
+    let data = this.$['*outputData'];
+    let files = [];
     let items = this.uploadCollection.items();
     items.forEach((itemId) => {
       let uploadEntryData = Data.getNamedCtx(itemId).store;
       let info = uploadEntryData.fileInfo;
-      data.push(info);
+      files.push(info);
     });
-    this.$['*outputData'] = data;
+    data.files = files;
   }
 
   destroyCallback() {
