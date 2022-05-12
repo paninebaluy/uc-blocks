@@ -25,6 +25,14 @@ if (!DOC_READY) {
  *   '*outputData': any[] | null;
  *   '*focusedEntry': any | null;
  *   '*uploadCollection': TypedCollection;
+ *   '*--cfg-pubkey': String;
+ *   '*--cfg-store': Boolean;
+ *   '*--cfg-multiple': Boolean;
+ *   '*--cfg-max-files': Number;
+ *   '*--cfg-accept': String;
+ *   '*--cfg-confirm-upload': Boolean;
+ *   '*--cfg-init-activity': String;
+ *   '*--cfg-done-activity': String;
  * }} BlockState
  */
 
@@ -218,7 +226,7 @@ export class Block extends BaseComponent {
     this.fileInput = document.createElement('input');
     this.fileInput.type = 'file';
     this.fileInput.multiple = !!this.$['*--cfg-multiple'];
-    this.fileInput.max = this.$['*--cfg-max-files'];
+    this.fileInput.max = this.$['*--cfg-max-files'].toString();
     this.fileInput.accept = this.$['*--cfg-accept'];
     this.fileInput.dispatchEvent(new MouseEvent('click'));
     this.fileInput.onchange = () => {
