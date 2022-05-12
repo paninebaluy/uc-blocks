@@ -14,6 +14,24 @@ if (!DOC_READY) {
   });
 }
 
+/**
+ * @typedef {{
+ *   '*ctxTargetsRegistry': Set<any>;
+ *   '*currentActivity': String;
+ *   '*currentActivityParams': { [key: String]: any };
+ *   '*history': String[];
+ *   '*commonProgress': Number;
+ *   '*uploadList': any[];
+ *   '*outputData': any[] | null;
+ *   '*focusedEntry': any | null;
+ *   '*uploadCollection': TypedCollection;
+ * }} BlockState
+ */
+
+/**
+ * @template S
+ * @extends {BaseComponent<S & Partial<BlockState>>}
+ */
 export class Block extends BaseComponent {
   /**
    * @param {String} str
@@ -135,16 +153,18 @@ export class Block extends BaseComponent {
   connected() {
     if (!this.__connectedOnce) {
       if (!Block._ctxConnectionsList.includes(this.ctxName)) {
-        this.add$({
-          '*ctxTargetsRegistry': new Set(),
-          '*currentActivity': '',
-          '*currentActivityParams': {},
-          '*history': [],
-          '*commonProgress': 0,
-          '*uploadList': [],
-          '*outputData': null,
-          '*focusedEntry': null,
-        });
+        this.add$(
+          /** @type {Partial<S & BlockState>} */ ({
+            '*ctxTargetsRegistry': new Set(),
+            '*currentActivity': '',
+            '*currentActivityParams': {},
+            '*history': [],
+            '*commonProgress': 0,
+            '*uploadList': [],
+            '*outputData': null,
+            '*focusedEntry': null,
+          })
+        );
         Block._ctxConnectionsList.push(this.ctxName);
       }
       this.$['*ctxTargetsRegistry'].add(this.constructor['is']);
@@ -154,7 +174,7 @@ export class Block extends BaseComponent {
       if (this.hasAttribute('current-activity')) {
         this.sub('*currentActivity', (/** @type {String} */ val) => {
           this.setAttribute('current-activity', val);
-        })
+        });
       }
 
       if (this.activityType) {
@@ -238,9 +258,11 @@ export class Block extends BaseComponent {
   /** @param {Boolean} [force] */
   initFlow(force = false) {
     if (this.$['*uploadList']?.length && !force) {
-      this.set$({
-        '*currentActivity': Block.activities.UPLOAD_LIST,
-      });
+      this.set$(
+        /** @type {Partial<S & BlockState>} */ ({
+          '*currentActivity': Block.activities.UPLOAD_LIST,
+        })
+      );
       this.setForCtxTarget('uc-modal', '*modalActive', true);
     } else {
       if (this.sourceList?.length === 1) {
@@ -251,12 +273,14 @@ export class Block extends BaseComponent {
           this.openSystemDialog();
         } else {
           if (Object.values(Block.extSrcList).includes(srcKey)) {
-            this.set$({
-              '*currentActivityParams': {
-                externalSourceType: srcKey,
-              },
-              '*currentActivity': Block.activities.EXTERNAL,
-            });
+            this.set$(
+              /** @type {Partial<S & BlockState>} */ ({
+                '*currentActivityParams': /** @type {BlockState['*currentActivityParams']} */ ({
+                  externalSourceType: srcKey,
+                }),
+                '*currentActivity': Block.activities.EXTERNAL,
+              })
+            );
           } else {
             this.$['*currentActivity'] = srcKey;
           }
@@ -264,9 +288,11 @@ export class Block extends BaseComponent {
         }
       } else {
         // Multiple sources case:
-        this.set$({
-          '*currentActivity': Block.activities.START_FROM,
-        });
+        this.set$(
+          /** @type {Partial<S & BlockState>} */ ({
+            '*currentActivity': Block.activities.START_FROM,
+          })
+        );
         this.setForCtxTarget('uc-modal', '*modalActive', true);
       }
     }
@@ -325,7 +351,7 @@ export class Block extends BaseComponent {
     return this.$['*currentActivityParams'];
   }
 
-  /** @returns {import('../submodules/symbiote/core/symbiote.js').TypedCollection} */
+  /** @returns {TypedCollection} */
   get uploadCollection() {
     if (!this.has('*uploadCollection')) {
       let uploadCollection = new TypedCollection({
@@ -348,7 +374,7 @@ export class Block extends BaseComponent {
           this.$['*commonProgress'] = commonProgress / items.length;
         }
       });
-      this.add('*uploadCollection', uploadCollection);
+      this.add('*uploadCollection', /** @type {Partial<S & BlockState>['*uploadCollection']} */ (uploadCollection));
     }
     return this.$['*uploadCollection'];
   }
